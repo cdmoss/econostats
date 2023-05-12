@@ -1,5 +1,11 @@
-import { Line } from 'react-chartjs-2';
-import { CategoryScale, LinearScale, Chart, PointElement, LineElement } from "chart.js";
+import {
+  CategoryScale,
+  Chart,
+  LineElement,
+  LinearScale,
+  PointElement,
+} from "chart.js";
+import { Line } from "react-chartjs-2";
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement);
 
@@ -14,7 +20,10 @@ interface EconomicChartProps {
   }[];
 }
 
-const EconomicChart: React.FC<EconomicChartProps> = ({ labels, datasets }) => {
+export const EconomicChart: React.FC<EconomicChartProps> = ({
+  labels,
+  datasets,
+}) => {
   return (
     <div>
       <Line
@@ -26,5 +35,3 @@ const EconomicChart: React.FC<EconomicChartProps> = ({ labels, datasets }) => {
     </div>
   );
 };
-
-export default EconomicChart;
