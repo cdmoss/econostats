@@ -1,22 +1,21 @@
 import axios, { type AxiosResponse } from "axios";
 import { type DataSet, type EconDataPoint } from "types";
 
+// TODO: make indicator and country string arrays, construct query url using array values
 export const fetchEconomicData = async (
   indicator: string,
-  country: string
+  country: string,
+  startYear: number,
+  endYear: number
 ): Promise<DataSet | undefined> => {
-  const url = `https://api.worldbank.org/v2/country/${country}/indicator/${indicator}?format=json`;
+  const url = `https://api.worldbank.org/v2/country/${country}/indicator/${indicator}?format=json&date=${startYear}:${endYear}`;
 
   try {
     const response: AxiosResponse<EconDataPoint[][]> = await axios.get<
       EconDataPoint[][]
     >(url);
 
-    console.log(response.status);
-
     const data: EconDataPoint[][] = response.data;
-
-    console.log(response.data);
 
     if (data[1]) {
       return {

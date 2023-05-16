@@ -1,21 +1,21 @@
 import { type NextPage } from "next";
-import { useState } from "react";
-import type { Country, DataSet } from "types";
+import { useEffect, useState } from "react";
+import type { Country, DataSet, DataSetDescription } from "types";
 import { EconomicChart } from "~/components/Chart";
-import DataSelector from "~/components/Chart/DataSelector";
+import { DataSetList } from "~/components/Chart/DataSetList";
 import { fetchEconomicData } from "~/lib/external-data";
 
 export async function getServerSideProps() {
-  const data = await fetchEconomicData("NY.GDP.MKTP.CD", "us");
-  console.log(data);
-  return { props: { data } };
+  const data = await fetchEconomicData("NY.GDP.MKTP.CD", "us", 2010, 2023);
+  return { props: { initialData: data } }
 }
 
-const ChartPage: NextPage<{ data: DataSet }> = ({ data }) => {
-  const [activeDataSets, setActiveDataSets] = useState<DataSet[]>([]);
+const ChartPage: NextPage<{ initialData: DataSet }> = ({ initialData }) => {
+
+  const [activeDataSets, setActiveDataSets] = useState<DataSet[]>([initialData]);
 
   const addDataSet = async (indicator: string, country: Country) => {
-    const fetchedData = await fetchEconomicData(indicator, country);
+    const fetchedData = await fetchEconomicData(indicator, country, 2010, 2023);
 
     if (fetchedData) setActiveDataSets([...activeDataSets, fetchedData]);
   };
@@ -25,29 +25,25 @@ const ChartPage: NextPage<{ data: DataSet }> = ({ data }) => {
       prevDataSets.filter((dataSet) => dataSet.label !== label)
     );
   };
+
   return (
-    <div>
+    <div className="p-10 h-full flex flex-col items-center">
       <h1>Economic Data</h1>
-      {data ? (
-        <>
-          <DataSelector
-            onAddDataSet={addDataSet}
-            onRemoveDataSet={removeDataSet}
-            activeDataSets={activeDataSets}
-          />
-          <EconomicChart
-            labels={data.data.map((dataPoint) => dataPoint.date)}
-            datasets={[
-              {
-                label: "GDP",
-                data: data.data.map((dataPoint) => dataPoint.value),
-                fill: false,
-                backgroundColor: "rgb(75,192,192)",
-                borderColor: "rgba(75,192,192,0.2)",
-              },
-            ]}
-          />
-        </>
+      {activeDataSets.length > 0 ? (
+        <div className="flex gap-10 h-full w-full">
+          <div>
+            <DataSetList
+              addDataSet={addDataSet}
+              removeDataSet={removeDataSet}
+              activeDataSets={activeDataSets}
+            />
+          </div>
+          <div className="flex-1">
+            <EconomicChart
+              activeDataSets={activeDataSets}
+            />
+          </div>
+        </div>
       ) : (
         <p>Waiting for data</p>
       )}
